@@ -12,3 +12,7 @@ what we call accountants or treasurers today.
 
  - Go 1.23.0+ (toolchain 1.23.2)
  - Google OAuth2 credentials (If you use Google Sheets)
+
+## Limitation
+
+ - Supports only one sheet per operation (Plan to support ER after 0.3)
