@@ -15,4 +15,4 @@ what we call accountants or treasurers today.
 
 ## Limitation
 
- - Supports only one sheet per operation (Plan to support ER after 0.3)
+ - Supports only one sheet per operation (Plan to support ER 0.3 or later)
