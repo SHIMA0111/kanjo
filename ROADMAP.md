@@ -17,6 +17,7 @@
    - count: Counting data number of the specified column data in each group
    - median: Median of the specified column data each group
  - Supports csv, console, JSON as the output target
+ - Provides the core functions of this project as a Go library to all Go developers. 
 
 ## [0.2.0]
 
