@@ -3,6 +3,7 @@ package entities
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-gota/gota/dataframe"
 	"runtime"
 	"time"
 )
@@ -10,8 +11,8 @@ import (
 // Processing represents the result of a data operation, tracking metadata and excluding non-JSON marshaled data.
 type Processing struct {
 	// Data doesn't marshal to JSON well
-	Data     [][]int            `json:"-"`
-	Metadata ProcessingMetadata `json:"metadata"`
+	Data     *dataframe.DataFrame `json:"-"`
+	Metadata ProcessingMetadata   `json:"metadata"`
 }
 
 // ProcessingMetadata holds metadata about the processing of data, including rows, filters, performance, and memory usage.
@@ -55,11 +56,14 @@ type PerformanceEntry struct {
 
 // NewProcessing initializes a new Processing instance with provided data and configuration name.
 // It records initial memory statistics, start time, and sets up metadata for tracking processing operations.
-func NewProcessing(data [][]int, configName string) *Processing {
+func NewProcessing(data *dataframe.DataFrame, configName string) *Processing {
 	var initMemStats runtime.MemStats
 	runtime.ReadMemStats(&initMemStats)
 
-	totalRows := len(data)
+	totalRows := 0
+	if data != nil {
+		totalRows = data.Nrow()
+	}
 
 	return &Processing{
 		Data: data,
@@ -150,7 +154,7 @@ func (p *Processing) ToJSON() (string, error) {
 
 // HasData checks if the Processing instance contains any data by verifying the length of the `Data` field. Returns true if data exists.
 func (p *Processing) HasData() bool {
-	return len(p.Data) > 0
+	return p.Data != nil && p.Data.Nrow() > 0
 }
 
 // GetRowCount returns the number of rows in the Data field of the Processing instance. Returns 0 if Data is nil.
@@ -159,7 +163,7 @@ func (p *Processing) GetRowCount() int {
 		return 0
 	}
 
-	return len(p.Data)
+	return p.Data.Nrow()
 }
 
 // GetColumnCount returns the number of columns in the Data field of the Processing instance. Returns 0 if Data is nil.
@@ -168,7 +172,7 @@ func (p *Processing) GetColumnCount() int {
 		return 0
 	}
 
-	return len(p.Data[0])
+	return p.Data.Ncol()
 }
 
 // GetColumnNames returns a slice of strings representing the names of the columns in the Data field of the Processing instance.

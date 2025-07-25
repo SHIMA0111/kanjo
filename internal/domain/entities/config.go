@@ -8,16 +8,26 @@ import (
 )
 
 // Config represents the configuration for a calculation
+// Type represents the DataSource type; csv, googlesheets, etc.
+// Source represents the identifier for the data source, such as the sheet ID for a Google Sheets source, filepath for csv.
 type Config struct {
 	Name         string              `json:"name"`
 	Description  string              `json:"description"`
 	Creator      string              `json:"creator"`
+	Type         string              `json:"type"`
 	Source       string              `json:"source"`
-	SheetID      string              `json:"sheetID,omitempty"`
-	Filter       string              `json:"filter,omitempty"`
+	Filters      []FilterConfig      `json:"filters,omitempty"`
 	MergeColumns []MergeConfig       `json:"mergeColumns,omitempty"`
 	Aggregations []AggregationConfig `json:"aggregations,omitempty"`
 	OutputFormat string              `json:"outputFormat"`
+}
+
+// FilterConfig defines the structure for filtering operations based on a column, its value, and a specified operator.
+type FilterConfig struct {
+	Column          string `json:"column"`
+	Value           string `json:"value"`
+	Operator        string `json:"operator"`
+	LogicalOperator string `json:"logicalOperator"` // LogicalOperator represents the way how to combine the next filter
 }
 
 // MergeConfig defines how to merge columns
@@ -39,7 +49,7 @@ type AggregationConfig struct {
 type Aggregation struct {
 	Column          string `json:"column"`
 	AggregateMethod string `json:"aggregateMethod"`
-	ResultName      string `json:"resultName"`
+	ResultName      string `json:"resultName,omitempty"`
 }
 
 // Validate checks the Config object for required fields and sets default values where applicable.
@@ -48,14 +58,25 @@ func (c *Config) Validate() error {
 	if c.Name == "" {
 		c.Name = "UntitledConfig_" + utils.RandomString(10)
 	}
+	if c.Type == "" {
+		return fmt.Errorf("type is required, valid values are: %s", "csv, googlesheets")
+	}
 	if c.Source == "" {
 		return fmt.Errorf("source is required")
 	}
-	if c.SheetID == "" && c.Source == "googlesheets" {
-		return fmt.Errorf("sheetID is required for Google Sheets source")
-	}
 	if c.OutputFormat == "" {
 		c.OutputFormat = "csv"
+	}
+
+	// This may be an implicit conversion and cause bugs. So commented out.
+	//if len(c.Filters) == 1 && !slices.Contains([]string{"and", "or"}, c.Filters[0].LogicalOperator) {
+	//	c.Filters[0].LogicalOperator = "and"
+	//}
+
+	for i, filter := range c.Filters {
+		if err := filter.Validate(); err != nil {
+			return fmt.Errorf("filter[%d]: %w", i, err)
+		}
 	}
 
 	// Validate all mergeColumns setting
@@ -70,6 +91,28 @@ func (c *Config) Validate() error {
 		if err := aggregation.Validate(); err != nil {
 			return fmt.Errorf("aggregation[%d]: %w", i, err)
 		}
+	}
+
+	return nil
+}
+
+func (fc *FilterConfig) Validate() error {
+	if fc.Column == "" {
+		return fmt.Errorf("column is required")
+	}
+
+	if fc.Value == "" {
+		return fmt.Errorf("value is required")
+	}
+
+	validateOperators := []string{"eq", "neq", "gt", "gte", "lt", "lte"}
+	if !slices.Contains(validateOperators, fc.Operator) {
+		return fmt.Errorf("invalid operator '%s', operator must be one of %v", fc.Operator, validateOperators)
+	}
+
+	validateLogicalOperators := []string{"and", "or"}
+	if !slices.Contains(validateLogicalOperators, fc.LogicalOperator) {
+		return fmt.Errorf("invalid logical operator '%s', operator must be one of %v", fc.LogicalOperator, validateLogicalOperators)
 	}
 
 	return nil

@@ -3,7 +3,7 @@
 ## [0.1.0]
 
  - Supports CSV, Google Sheets as the data source
- - Supports filter expression
+ - Supports filter expression because the filters can grow up easily in the real problems 
  - Supports column merge with the following merge strategy
    - concat: Concatenate the columns data
    - sum: Sum the columns data (if specified non-numeric column, returns error)

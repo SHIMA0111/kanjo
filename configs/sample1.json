@@ -1,0 +1,42 @@
+{
+  "name": "kanjo_sample1",
+  "description": "Sample json config file for kanjo",
+  "creator": "shima@little-tabby.com",
+  "type": "googlesheets",
+  "source": "XXXXXXX",
+  "filters": [
+    {
+      "column": "column1",
+      "value": 12.8,
+      "operator": ">",
+      "logicalOperator": "and"
+    },
+    {
+      "column": "column2",
+      "value": "critical",
+      "operator": "==",
+      "logicalOperator": "and"
+    }
+  ],
+  "mergeColumns": [
+    {
+      "firstColumn": "column4",
+      "secondColumn": "column7",
+      "strategy": "concat"
+    }
+  ],
+  "aggregations": [
+    {
+      "groupByColumns": [
+        "Customer"
+      ],
+      "aggregations": [
+        {
+          "column": "column5",
+          "aggregateMethod": "sum"
+        }
+      ]
+    }
+  ],
+  "outputFormat": "csv"
+}
