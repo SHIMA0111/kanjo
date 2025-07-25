@@ -18,5 +18,5 @@
    - Currently, there is no influent Dataframe library with Apache Arrow in the Go ecosystem.  
      ([gomem](https://github.com/gomem/gomem) is the Dataframe implementation with Apache Arrow, 
    but the maintenance seems to be stopped from 5 years ago for the dataframe directory.)
-   - We may create a new Dataframe library with Apache Arrow for this project, but this is very hard work, 
+   - We may create a new Dataframe library with Apache Arrow for this project, but this is tough work, 
    so currently we don't have any specific planning for this.
